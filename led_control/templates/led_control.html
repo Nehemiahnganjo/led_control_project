@@ -2,11 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LED Control</title>
 </head>
 <body>
-    <h1>Control the LED on Arduino</h1>
-    <button onclick="window.location.href='/led/on/'">Turn LED On</button>
-    <button onclick="window.location.href='/led/off/'">Turn LED Off</button>
+    <h1>LED Control</h1>
+    {% if arduino_connected %}
+        <p style="color: green;">Arduino is connected.</p>
+        <a href="{% url 'control_led' 'on' %}" style="padding: 10px; background-color: green; color: white; text-decoration: none;">Turn LED On</a>
+        <a href="{% url 'control_led' 'off' %}" style="padding: 10px; background-color: red; color: white; text-decoration: none;">Turn LED Off</a>
+    {% else %}
+        <p style="color: red;">Arduino is not connected. Check the connection.</p>
+    {% endif %}
 </body>
 </html>

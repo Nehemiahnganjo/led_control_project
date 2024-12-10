@@ -3,16 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LED Control</title>
+    <title>LED Control & Camera Stream</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>LED Control</h1>
-    {% if arduino_connected %}
-        <p style="color: green;">Arduino is connected.</p>
-        <a href="{% url 'control_led' 'on' %}" style="padding: 10px; background-color: green; color: white; text-decoration: none;">Turn LED On</a>
-        <a href="{% url 'control_led' 'off' %}" style="padding: 10px; background-color: red; color: white; text-decoration: none;">Turn LED Off</a>
-    {% else %}
-        <p style="color: red;">Arduino is not connected. Check the connection.</p>
-    {% endif %}
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-xl">
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">LED Control & Camera</h1>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- LED Control Section -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">LED Control</h2>
+                {% if arduino_connected %}
+                    <div class="mb-4">
+                        <p class="text-green-600 font-semibold mb-4 flex items-center">
+                            <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            Arduino Connected
+                        </p>
+                        
+                        <div class="flex space-x-4">
+                            <a href="{% url 'control_led' 'on' %}" id="ledOnLink" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">
+                                LED On
+                            </a>
+                            <a href="{% url 'control_led' 'off' %}" id="ledOffLink" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">
+                                LED Off
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                        <span>Arduino Not Connected</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Camera Stream Section -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Camera Stream</h2>
+                <div class="mb-4">
+                    <video id="webcam" autoplay playsinline 
+                           class="w-full bg-black rounded-lg shadow-md"></video>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="startCamera" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">
+                        Start Camera
+                    </button>
+                    <button id="stopCamera" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">
+                        Stop Camera
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.getElementById('webcam');
+            const startButton = document.getElementById('startCamera');
+            const stopButton = document.getElementById('stopCamera');
+            const ledOnLink = document.getElementById('ledOnLink');
+            const ledOffLink = document.getElementById('ledOffLink');
+            let stream = null;
+
+            // Camera Functionality
+            startButton.addEventListener('click', async () => {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        } 
+                    });
+                    video.srcObject = stream;
+                } catch (err) {
+                    console.error("Error accessing webcam:", err);
+                    alert('Could not access webcam. Check permissions.');
+                }
+            });
+
+            stopButton.addEventListener('click', () => {
+                if (stream) {
+                    const tracks = stream.getTracks();
+                    tracks.forEach(track => track.stop());
+                    video.srcObject = null;
+                }
+            });
+
+            // Prevent page reload for LED control links
+            function preventReload(event) {
+                event.preventDefault();
+                
+                // Get the href attribute
+                const url = event.target.getAttribute('href');
+                
+                // Fetch the URL without reloading the page
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('LED control failed');
+                        }
+                        console.log('LED control successful');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+
+            // Add event listeners to LED control links
+            ledOnLink.addEventListener('click', preventReload);
+            ledOffLink.addEventListener('click', preventReload);
+        });
+    </script>
 </body>
 </html>

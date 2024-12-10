@@ -3,7 +3,7 @@ import serial
 
 # Attempt to establish a connection to Arduino
 try:
-    arduino = serial.Serial('COM4', 9600)  # Update 'COM3' to your actual port
+    arduino = serial.Serial('COM3', 9600)  # Update 'COM3' to your actual port
     print("Connected to Arduino.")
 except Exception as e:
     print(f"Error connecting to Arduino: {e}")

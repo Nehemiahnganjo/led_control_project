@@ -3,77 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Device Control Panel</title>
+    <title>Smart Device Control Hub</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .connection-pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center p-4">
     <div class="container mx-auto">
-        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-4xl mx-auto">
-            <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-6">
-                <h1 class="text-4xl font-extrabold text-center text-white tracking-tight">
-                    <i class="fas fa-microchip mr-3"></i>Smart Device Control
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-5xl mx-auto border-4 border-opacity-10 border-gray-300">
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-700 p-6 shadow-lg">
+                <h1 class="text-4xl font-black text-center text-white tracking-tight uppercase flex justify-center items-center">
+                    <i class="fas fa-microchip mr-4 text-white/80"></i>
+                    Smart Device Control Hub
                 </h1>
             </div>
             
             <div class="p-8 grid md:grid-cols-2 gap-8">
                 <!-- LED Control Section -->
-                <div class="bg-gray-50 rounded-xl border border-gray-200 p-6 transform transition-all duration-300 hover:shadow-lg">
+                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-md hover:shadow-xl transition-all duration-300 group">
                     <div class="flex items-center mb-6">
-                        <i class="fas fa-lightbulb text-yellow-500 text-3xl mr-4"></i>
+                        <i class="fas fa-lightbulb text-yellow-500 text-3xl mr-4 group-hover:rotate-12 transition-transform"></i>
                         <h2 class="text-2xl font-bold text-gray-800">LED Control</h2>
                     </div>
 
                     {% if arduino_connected %}
                         <div class="space-y-4">
                             <div class="flex justify-between items-center mb-4">
-                                <p class="text-green-600 font-semibold flex items-center">
-                                    <i class="fas fa-check-circle mr-2"></i>
-                                    Arduino Connected
-                                </p>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-check-circle text-green-500"></i>
+                                    <span class="text-green-600 font-semibold">Arduino Connected</span>
+                                </div>
                                 <div id="ledStateIndicator" class="flex items-center">
                                     <span class="mr-2 text-sm text-gray-600">LED State:</span>
-                                    <div id="ledStateIcon" class="w-4 h-4 rounded-full bg-gray-400"></div>
+                                    <div id="ledStateIcon" class="w-5 h-5 rounded-full bg-gray-400 transition-colors"></div>
                                 </div>
                             </div>
                             
-                            <div class="flex space-x-4">
+                            <div class="grid grid-cols-2 gap-4">
                                 <a href="{% url 'control_led' 'on' %}" id="ledOnLink" 
-                                   class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 text-center">
+                                   class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 text-center flex items-center justify-center">
                                     <i class="fas fa-power-off mr-2"></i>LED On
                                 </a>
                                 <a href="{% url 'control_led' 'off' %}" id="ledOffLink" 
-                                   class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 text-center">
+                                   class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 text-center flex items-center justify-center">
                                     <i class="fas fa-times-circle mr-2"></i>LED Off
                                 </a>
                             </div>
                         </div>
                     {% else %}
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center">
-                            <i class="fas fa-exclamation-triangle mr-2"></i>
-                            <span>Arduino Not Connected</span>
+                        <div class="bg-red-50 border-2 border-red-300 text-red-700 px-4 py-3 rounded-lg flex items-center connection-pulse">
+                            <i class="fas fa-exclamation-triangle mr-3 text-2xl"></i>
+                            <div>
+                                <h3 class="font-bold">Connection Error</h3>
+                                <p class="text-sm">Arduino not detected. Check connections.</p>
+                            </div>
                         </div>
                     {% endif %}
                 </div>
 
                 <!-- Camera Stream Section -->
-                <div class="bg-gray-50 rounded-xl border border-gray-200 p-6 transform transition-all duration-300 hover:shadow-lg">
+                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-md hover:shadow-xl transition-all duration-300 group">
                     <div class="flex items-center mb-6">
-                        <i class="fas fa-video text-blue-500 text-3xl mr-4"></i>
+                        <i class="fas fa-video text-blue-500 text-3xl mr-4 group-hover:rotate-6 transition-transform"></i>
                         <h2 class="text-2xl font-bold text-gray-800">Camera Stream</h2>
                     </div>
 
-                    <div class="mb-6">
+                    <div class="mb-6 relative">
                         <video id="webcam" autoplay playsinline 
-                               class="w-full bg-black rounded-lg shadow-md aspect-video object-cover"></video>
+                               class="w-full bg-black rounded-lg shadow-md aspect-video object-cover transition-all duration-300 opacity-90 hover:opacity-100"></video>
+                        <div id="cameraStatus" class="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded-full text-xs">
+                            Camera Inactive
+                        </div>
                     </div>
-                    <div class="flex space-x-4">
+                    <div class="grid grid-cols-2 gap-4">
                         <button id="startCamera" 
-                                class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out flex items-center justify-center">
+                                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out flex items-center justify-center">
                             <i class="fas fa-play mr-2"></i>Start Camera
                         </button>
                         <button id="stopCamera" 
-                                class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out flex items-center justify-center">
+                                class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out flex items-center justify-center">
                             <i class="fas fa-stop mr-2"></i>Stop Camera
                         </button>
                     </div>
@@ -90,10 +106,11 @@
             const ledOnLink = document.getElementById('ledOnLink');
             const ledOffLink = document.getElementById('ledOffLink');
             const ledStateIcon = document.getElementById('ledStateIcon');
+            const cameraStatus = document.getElementById('cameraStatus');
             let stream = null;
-            let currentLedState = 'off'; // Default state
+            let currentLedState = 'off';
 
-            // Camera Functionality
+            // Enhanced Camera Functionality
             startButton.addEventListener('click', async () => {
                 try {
                     stream = await navigator.mediaDevices.getUserMedia({ 
@@ -105,9 +122,12 @@
                     video.srcObject = stream;
                     startButton.disabled = true;
                     stopButton.disabled = false;
+                    cameraStatus.textContent = 'Camera Active';
+                    cameraStatus.classList.remove('bg-black/50');
+                    cameraStatus.classList.add('bg-green-500/70');
                 } catch (err) {
                     console.error("Error accessing webcam:", err);
-                    alert('Could not access webcam. Check permissions.');
+                    alert('Could not access webcam. Check permissions and hardware.');
                 }
             });
 
@@ -118,63 +138,64 @@
                     video.srcObject = null;
                     startButton.disabled = false;
                     stopButton.disabled = true;
+                    cameraStatus.textContent = 'Camera Inactive';
+                    cameraStatus.classList.add('bg-black/50');
+                    cameraStatus.classList.remove('bg-green-500/70');
                 }
             });
 
-            // Update LED State Indicator
+            // Enhanced LED State Indicator
             function updateLedState(state) {
                 currentLedState = state;
+                ledStateIcon.classList.remove('bg-gray-400', 'bg-green-500', 'bg-red-500');
+                
                 if (state === 'on') {
-                    ledStateIcon.classList.remove('bg-gray-400');
-                    ledStateIcon.classList.remove('bg-red-500');
                     ledStateIcon.classList.add('bg-green-500');
                 } else {
-                    ledStateIcon.classList.remove('bg-gray-400');
-                    ledStateIcon.classList.remove('bg-green-500');
                     ledStateIcon.classList.add('bg-red-500');
                 }
             }
 
-            // Prevent page reload for LED control links
+            // Improved LED Control with Enhanced Error Handling
             function preventReload(event) {
                 event.preventDefault();
                 
                 const url = event.target.getAttribute('href');
-                const originalText = event.target.innerHTML;
+                const originalContent = event.target.innerHTML;
                 const isOnAction = url.includes('on');
                 
-                // Temporary visual feedback
                 event.target.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Processing...`;
+                event.target.classList.add('opacity-70', 'cursor-not-allowed');
                 
                 fetch(url)
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error('LED control failed');
+                            throw new Error('LED control request failed');
                         }
-                        // Temporary success indication
                         event.target.innerHTML = `<i class="fas fa-check mr-2"></i>Success`;
-                        
-                        // Update LED state
                         updateLedState(isOnAction ? 'on' : 'off');
                         
                         setTimeout(() => {
-                            event.target.innerHTML = originalText;
+                            event.target.innerHTML = originalContent;
+                            event.target.classList.remove('opacity-70', 'cursor-not-allowed');
                         }, 2000);
                     })
                     .catch(error => {
                         console.error('Error:', error);
                         event.target.innerHTML = `<i class="fas fa-times mr-2"></i>Error`;
+                        event.target.classList.add('bg-red-500');
+                        
                         setTimeout(() => {
-                            event.target.innerHTML = originalText;
+                            event.target.innerHTML = originalContent;
+                            event.target.classList.remove('opacity-70', 'cursor-not-allowed', 'bg-red-500');
                         }, 2000);
                     });
             }
 
-            // Add event listeners to LED control links
             ledOnLink.addEventListener('click', preventReload);
             ledOffLink.addEventListener('click', preventReload);
 
-            // Initially disable stop button and set LED state
+            // Initial UI Setup
             stopButton.disabled = true;
             updateLedState('off');
         });
